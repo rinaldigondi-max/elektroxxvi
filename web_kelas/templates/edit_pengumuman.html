@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Pengumuman - Portal Kelas</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8fafc; display: flex; color: #334155; }
+        .sidebar { width: 260px; background: #0f172a; color: white; height: 100vh; position: fixed; display: flex; flex-direction: column; }
+        .sidebar-brand { padding: 25px 20px; font-size: 18px; font-weight: bold; background: #1e293b; color: #38bdf8; text-align: center; border-bottom: 1px solid #334155; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #94a3b8; text-decoration: none; font-size: 14px; border-left: 4px solid transparent; }
+        .sidebar-menu li a:hover { background: #1e293b; color: white; border-left-color: #38bdf8; }
+        .main-content { margin-left: 260px; flex-grow: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .content-body { padding: 30px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; max-width: 600px; }
+        .card h3 { margin-top: 0; color: #0f172a; }
+        .btn { background: #2563eb; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-secondary { background: #64748b; margin-left: 10px; }
+        .btn-secondary:hover { background: #475569; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0 15px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .logout { color: #ef4444; text-decoration: none; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">⚡ PORTAL ELEKTRO</div>
+        <ul class="sidebar-menu">
+            <li><a href="/">📢 Dashboard & Pengumuman</a></li>
+            <li><a href="/tugas">📝 Informasi Tugas</a></li>
+            <li><a href="/voting">📊 Voting Suara</a></li>
+            <li><a href="/baju-angkatan">👕 Pemilihan Baju Angkatan</a></li>
+            <li><a href="/tentang">ℹ️ Tentang Web Ini</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Edit Pengumuman</h2>
+            <div>
+                <span>Halo, <strong>{{ session['user_nama'] }}</strong> | </span>
+                <a href="/logout" class="logout">Logout</a>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div class="card">
+                <h3>Ubah Isi Pengumuman</h3>
+                <form method="POST">
+                    <label>Judul Pengumuman:</label>
+                    <input type="text" name="judul" value="{{ pengumuman.judul }}" required>
+                    <label>Isi Informasi:</label>
+                    <textarea name="isi" rows="4" required>{{ pengumuman.isi }}</textarea>
+                    <button type="submit" class="btn">Simpan Perubahan</button>
+                    <a href="/" class="btn btn-secondary">Batal</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

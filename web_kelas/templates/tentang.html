@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Tentang Web - Portal Kelas</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8fafc; display: flex; color: #334155; }
+        .sidebar { width: 260px; background: #0f172a; color: white; height: 100vh; position: fixed; display: flex; flex-direction: column; }
+        .sidebar-brand { padding: 25px 20px; font-size: 18px; font-weight: bold; background: #1e293b; color: #38bdf8; text-align: center; border-bottom: 1px solid #334155; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #94a3b8; text-decoration: none; font-size: 14px; border-left: 4px solid transparent; }
+        .sidebar-menu li a:hover { background: #1e293b; color: white; border-left-color: #38bdf8; }
+        .main-content { margin-left: 260px; flex-grow: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .content-body { padding: 30px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; line-height: 1.6; }
+        .card h3 { color: #0f172a; margin-top: 0; }
+        .logout { color: #ef4444; text-decoration: none; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">⚡ PORTAL ELEKTRO</div>
+        <ul class="sidebar-menu">
+            <li><a href="/">📢 Dashboard & Pengumuman</a></li>
+            <li><a href="/tugas">📝 Informasi Tugas</a></li>
+            <li><a href="/voting">📊 Voting Suara</a></li>
+            <li><a href="/baju-angkatan">👕 Pemilihan Baju Angkatan</a></li>
+            <li><a href="/tentang" class="active">ℹ️ Tentang Web Ini</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Tentang Website</h2>
+            <div>
+                <span>Halo, <strong>{{ session['user_nama'] }}</strong> | </span>
+                <a href="/logout" class="logout">Logout</a>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div class="card">
+                <h3>Tentang Portal Kelas Elektro</h3>
+                <p>Website ini dirancang dan dikembangkan oleh anak-anak teknik elektro sebagai pusat informasi resmi kelas.</p>
+                <p>Tujuan dari pembuatan platform ini adalah untuk memudahkan penyebaran informasi penting seperti pengumuman perkuliahan, rincian deadline tugas, hingga fasilitas voting interaktif dan pemilihan baju angkatan agar koordinasi antar mahasiswa menjadi lebih cepat dan terstruktur.</p>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                <p style="font-size: 13px; color: #64748b;">Versi Aplikasi: 2.3 (Full Dynamic Admin Edition)<br>Dibuat khusus untuk efisiensi komunikasi kelas.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Info Tugas - Portal Kelas</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8fafc; display: flex; color: #334155; }
+        .sidebar { width: 260px; background: #0f172a; color: white; height: 100vh; position: fixed; display: flex; flex-direction: column; }
+        .sidebar-brand { padding: 25px 20px; font-size: 18px; font-weight: bold; background: #1e293b; color: #38bdf8; text-align: center; border-bottom: 1px solid #334155; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #94a3b8; text-decoration: none; font-size: 14px; border-left: 4px solid transparent; }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: #1e293b; color: white; border-left-color: #38bdf8; }
+        .main-content { margin-left: 260px; flex-grow: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .content-body { padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .card h3 { margin-top: 0; color: #0f172a; }
+        .badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
+        .deadline { color: #dc2626; font-size: 13px; font-weight: bold; }
+        .btn { background: #2563eb; color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: #d97706; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0 15px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .logout { color: #ef4444; text-decoration: none; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">⚡ PORTAL ELEKTRO</div>
+        <ul class="sidebar-menu">
+            <li><a href="/">📢 Dashboard & Pengumuman</a></li>
+            <li><a href="/tugas" class="active">📝 Informasi Tugas</a></li>
+            <li><a href="/voting">📊 Voting Suara</a></li>
+            <li><a href="/baju-angkatan">👕 Pemilihan Baju Angkatan</a></li>
+            <li><a href="/tentang">ℹ️ Tentang Web Ini</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Informasi Tugas Kuliah</h2>
+            <div>
+                <span>Halo, <strong>{{ session['user_nama'] }}</strong> | </span>
+                <a href="/logout" class="logout">Logout</a>
+            </div>
+        </div>
+
+        <div class="content-body">
+            {% for i in range(tugas_list|length) %}
+            <div class="card">
+                <span class="badge">{{ tugas_list[i].matkul }}</span>
+                <h3>{{ tugas_list[i].judul }}</h3>
+                <p>{{ tugas_list[i].isi }}</p>
+                <p class="deadline">⏰ Batas Pengumpulan: {{ tugas_list[i].deadline }}</p>
+
+                {% if session['user_role'] == 'admin' %}
+                <div style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 10px; display: flex; gap: 10px;">
+                    <a href="/edit-tugas/{{ i }}" class="btn btn-warning">✏️ Edit Tugas</a>
+                    <form action="/hapus-tugas/{{ i }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus tugas ini?');">
+                        <button type="submit" class="btn btn-danger">🗑️ Hapus Tugas</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if session['user_role'] == 'admin' %}
+            <div class="card" style="border-top: 4px solid #22c55e;">
+                <h3>Tambah Tugas Baru (Admin)</h3>
+                <form action="/tambah-tugas" method="POST">
+                    <label>Mata Kuliah:</label>
+                    <input type="text" name="matkul" placeholder="Contoh: Sistem Mikroprosesor" required>
+                    <label>Judul Tugas:</label>
+                    <input type="text" name="judul" required>
+                    <label>Batas Waktu (Deadline):</label>
+                    <input type="text" name="deadline" placeholder="Contoh: Senin, 20:00 WIB" required>
+                    <label>Keterangan / Instruksi:</label>
+                    <textarea name="isi" rows="3" required></textarea>
+                    <button type="submit" class="btn">Posting Tugas</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

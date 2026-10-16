@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pemilihan Baju Angkatan - Portal Kelas</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8fafc; display: flex; color: #334155; }
+        .sidebar { width: 260px; background: #0f172a; color: white; height: 100vh; position: fixed; display: flex; flex-direction: column; }
+        .sidebar-brand { padding: 25px 20px; font-size: 18px; font-weight: bold; background: #1e293b; color: #38bdf8; text-align: center; border-bottom: 1px solid #334155; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #94a3b8; text-decoration: none; font-size: 14px; border-left: 4px solid transparent; }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: #1e293b; color: white; border-left-color: #38bdf8; }
+        .main-content { margin-left: 260px; flex-grow: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .content-body { padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .card h3 { margin-top: 0; color: #0f172a; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .btn { background: #2563eb; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .alert { background: #dcfce7; color: #166534; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+        .alert-danger { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+        .error { color: #dc2626; background: #fef2f2; padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 13px; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0 15px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .logout { color: #ef4444; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .deadline-badge { font-size: 13px; color: #dc2626; font-weight: bold; margin-bottom: 15px; display: block; }
+        .desc-box { background: #f1f5f9; padding: 12px; border-radius: 6px; border-left: 4px solid #0284c7; margin-bottom: 20px; font-size: 14px; }
+        
+        .baju-option-card { background: #fafafa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; gap: 20px; align-items: center; }
+        .baju-img { width: 120px; height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; background: #e2e8f0; }
+        .baju-info { flex-grow: 1; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">⚡ PORTAL ELEKTRO</div>
+        <ul class="sidebar-menu">
+            <li><a href="/" class="active">📢 Dashboard & Pengumuman</a></li>
+            <li><a href="/tugas">📝 Informasi Tugas</a></li>
+            <li><a href="/voting">📊 Voting Suara</a></li>
+            <li><a href="/baju-angkatan" class="active">👕 Pemilihan Baju Angkatan</a></li>
+            <li><a href="/tentang">ℹ️ Tentang Web Ini</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Pemilihan Baju Angkatan</h2>
+            <div>
+                <span>Halo, <strong>{{ session['user_nama'] }}</strong> | </span>
+                <a href="/logout" class="logout">Logout</a>
+            </div>
+        </div>
+
+        <div class="content-body">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for msg in messages %}
+                  <div class="error" style="background: #e0f2fe; color: #0369a1;">{{ msg }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <div class="card">
+                {% if baju_config.judul and opsi_detail|length > 0 %}
+                    <h3>{{ baju_config.judul }}</h3>
+                    <span class="deadline-badge">⏰ Batas Waktu Pemilihan: {{ deadline_str }}</span>
+
+                    {% if baju_config.keterangan %}
+                    <div class="desc-box">
+                        <strong>ℹ️ Informasi & Detail Baju:</strong><br>
+                        {{ baju_config.keterangan }}
+                    </div>
+                    {% endif %}
+
+                    {% if waktu_habis %}
+                        <div class="alert-danger">
+                            ⏳ <strong>Batas waktu pemilihan telah berakhir!</strong> Anda tidak dapat memilih lagi.
+                        </div>
+                    {% elif sudah_pilih %}
+                        <div class="alert">
+                            ✅ Terima kasih! Anda telah memilih: <strong>{{ pilihan_saya }}</strong>
+                        </div>
+                    {% else %}
+                        <form method="POST">
+                            {% for item in opsi_detail %}
+                            <div class="baju-option-card">
+                                {% if item.foto %}
+                                    <img src="{{ item.foto }}" alt="Desain Baju" class="baju-img">
+                                {% else %}
+                                    <div class="baju-img" style="display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; text-align: center;">Tanpa Foto</div>
+                                {% endif %}
+                                <div class="baju-info">
+                                    <label style="cursor: pointer; font-size: 15px;">
+                                        <input type="radio" name="pilihan" value="{{ item.nama }}" required> <strong>{{ item.nama }}</strong>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <br>
+                            <button type="submit" class="btn">Kirim Pilihan Baju</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <h3>Belum ada agenda pemilihan baju angkatan saat ini.</h3>
+                    <p style="color: #64748b; font-size: 14px;">Silakan buat agenda baru melalui panel pengaturan admin di bawah.</p>
+                {% endif %}
+            </div>
+
+            {% if baju_config.judul and opsi_detail|length > 0 %}
+            <div class="card">
+                <h3>Hasil Pemilihan Baju Sementara:</h3>
+                <ul>
+                    {% for opsi, jumlah in hasil_baju.items() %}
+                    <li><strong>{{ opsi }}:</strong> {{ jumlah }} suara</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if session['user_role'] == 'admin' %}
+            <div class="card" style="border-top: 4px solid #0284c7;">
+                <h3>⚙️ Pengaturan Baju Angkatan & Upload Foto (Admin)</h3>
+                <p style="font-size: 13px; color: #64748b;">Tentukan judul, deskripsi/keterangan, batas waktu, opsi pilihan baju, dan upload foto dari galeri HP/Laptop Anda.</p>
+                
+                <!-- Tambahkan enctype="multipart/form-data" agar form bisa meng-upload file -->
+                <form action="/update-baju-angkatan" method="POST" enctype="multipart/form-data" style="margin-bottom: 20px;">
+                    <label>Judul Pemilihan:</label>
+                    <input type="text" name="judul" value="{{ baju_config.judul }}" required>
+                    
+                    <label>Keterangan / Detail Baju (Bahan, Harga, Ukuran, dll):</label>
+                    <textarea name="keterangan" rows="3" required>{{ baju_config.keterangan }}</textarea>
+
+                    <label>Batas Waktu Pemilihan (Tanggal & Jam):</label>
+                    <input type="datetime-local" name="deadline" value="{{ baju_config.deadline }}" required>
+
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 15px;">
+                        <label><strong>Opsi 1 (Nama Desain):</strong></label>
+                        <input type="text" name="opsi_1" value="{{ baju_config.opsi_1 }}" placeholder="Contoh: Desain 1: Hitam Navy" required>
+                        <label>Upload Foto Opsi 1 (dari Galeri):</label>
+                        <input type="file" name="file_1" accept="image/*">
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 15px;">
+                        <label><strong>Opsi 2 (Nama Desain):</strong></label>
+                        <input type="text" name="opsi_2" value="{{ baju_config.opsi_2 }}" placeholder="Contoh: Desain 2: Hitam Solid" required>
+                        <label>Upload Foto Opsi 2 (dari Galeri):</label>
+                        <input type="file" name="file_2" accept="image/*">
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 15px;">
+                        <label><strong>Opsi 3 (Nama Desain):</strong></label>
+                        <input type="text" name="opsi_3" value="{{ baju_config.opsi_3 }}" placeholder="Contoh: Desain 3: Putih Oversize" required>
+                        <label>Upload Foto Opsi 3 (dari Galeri):</label>
+                        <input type="file" name="file_3" accept="image/*">
+                    </div>
+
+                    <button type="submit" class="btn" style="background: #0284c7;">Perbarui Agenda & Upload Foto</button>
+                </form>
+
+                {% if baju_config.judul %}
+                <form action="/hapus-baju-angkatan" method="POST" onsubmit="return confirm('Yakin ingin menghapus agenda pemilihan baju ini?');">
+                    <button type="submit" class="btn btn-danger">🗑️ Hapus Pemilihan Baju</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

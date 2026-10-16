@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Voting - Portal Kelas</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8fafc; display: flex; color: #334155; }
+        .sidebar { width: 260px; background: #0f172a; color: white; height: 100vh; position: fixed; display: flex; flex-direction: column; }
+        .sidebar-brand { padding: 25px 20px; font-size: 18px; font-weight: bold; background: #1e293b; color: #38bdf8; text-align: center; border-bottom: 1px solid #334155; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #94a3b8; text-decoration: none; font-size: 14px; border-left: 4px solid transparent; }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: #1e293b; color: white; border-left-color: #38bdf8; }
+        .main-content { margin-left: 260px; flex-grow: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .content-body { padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .card h3 { margin-top: 0; color: #0f172a; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+        .btn { background: #2563eb; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .alert { background: #dcfce7; color: #166534; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+        .alert-danger { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+        .error { color: #dc2626; background: #fef2f2; padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 13px; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0 15px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .logout { color: #ef4444; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .deadline-badge { font-size: 13px; color: #dc2626; font-weight: bold; margin-bottom: 15px; display: block; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">⚡ PORTAL ELEKTRO</div>
+        <ul class="sidebar-menu">
+            <li><a href="/">📢 Dashboard & Pengumuman</a></li>
+            <li><a href="/tugas">📝 Informasi Tugas</a></li>
+            <li><a href="/voting" class="active">📊 Voting Suara</a></li>
+            <li><a href="/baju-angkatan">👕 Pemilihan Baju Angkatan</a></li>
+            <li><a href="/tentang">ℹ️ Tentang Web Ini</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Voting & Polling Kelas</h2>
+            <div>
+                <span>Halo, <strong>{{ session['user_nama'] }}</strong> | </span>
+                <a href="/logout" class="logout">Logout</a>
+            </div>
+        </div>
+
+        <div class="content-body">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for msg in messages %}
+                  <div class="error" style="background: #e0f2fe; color: #0369a1;">{{ msg }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <div class="card">
+                {% if voting_config.options and voting_config.options|length > 0 %}
+                    <h3>{{ voting_config.judul }}</h3>
+                    <span class="deadline-badge">⏰ Batas Waktu Voting: {{ deadline_str }}</span>
+
+                    {% if waktu_habis %}
+                        <div class="alert-danger">
+                            ⏳ <strong>Waktu voting telah berakhir!</strong> Anda tidak dapat mengirimkan suara lagi.
+                        </div>
+                    {% elif sudah_voting %}
+                        <div class="alert">
+                            ✅ Terima kasih! Anda sudah memilih: <strong>{{ pilihan_saya }}</strong>
+                        </div>
+                    {% else %}
+                        <form method="POST">
+                            {% for opsi in voting_config.options %}
+                            <label style="display: block; margin-bottom: 12px; cursor: pointer;">
+                                <input type="radio" name="pilihan" value="{{ opsi }}" required> {{ opsi }}
+                            </label>
+                            {% endfor %}
+                            <br>
+                            <button type="submit" class="btn">Kirim Suara</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <h3>Belum ada polling aktif saat ini.</h3>
+                    <p style="color: #64748b; font-size: 14px;">Silakan buat polling baru melalui panel pengaturan di bawah.</p>
+                {% endif %}
+            </div>
+
+            {% if voting_config.options and voting_config.options|length > 0 %}
+            <div class="card">
+                <h3>Hasil Perolehan Suara Sementara:</h3>
+                <ul>
+                    {% for opsi, jumlah in voting.items() %}
+                    <li><strong>{{ opsi }}:</strong> {{ jumlah }} suara</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if session['user_role'] == 'admin' %}
+            <div class="card" style="border-top: 4px solid #f59e0b;">
+                <h3>⚙️ Pengaturan Polling & Batas Waktu (Admin)</h3>
+                <p style="font-size: 13px; color: #64748b;">Atur pertanyaan, opsi pilihan, serta batas tanggal dan jam berakhirnya voting.</p>
+                
+                <form action="/update-voting" method="POST" style="margin-bottom: 20px;">
+                    <label>Judul / Pertanyaan Polling:</label>
+                    <input type="text" name="judul" value="{{ voting_config.judul }}" required>
+                    
+                    <label>Batas Waktu Berakhir (Tanggal & Jam):</label>
+                    <input type="datetime-local" name="deadline" value="{{ voting_config.deadline }}" required>
+
+                    <label>Opsi Pilihan (Tulis setiap pilihan di baris baru / Enter):</label>
+                    <textarea name="options" rows="4" required>{% for opt in voting_config.options %}{{ opt }}
+{% endfor %}</textarea>
+                    
+                    <button type="submit" class="btn" style="background: #f59e0b;">Perbarui Polling & Batas Waktu</button>
+                </form>
+
+                {% if voting_config.options and voting_config.options|length > 0 %}
+                <form action="/hapus-voting" method="POST" onsubmit="return confirm('Yakin ingin menghapus polling ini secara total?');">
+                    <button type="submit" class="btn btn-danger">🗑️ Hapus Polling</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
